@@ -1,27 +1,37 @@
 package com.matrixtec.androwebglplayer;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebViewClientCompat;
 
 import android.app.Dialog;
+import android.net.Uri;
 import android.os.Bundle;
-
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ModalFragment.NoticeDialogListener {
+public class MainActivity extends AppCompatActivity implements SpinnerFragment.SpinnerListener {
 
     private RecyclerView gamesRecyclerView;
     private GameAdapter gameAdapter;
@@ -32,12 +42,14 @@ public class MainActivity extends AppCompatActivity implements ModalFragment.Not
     Button canceleBtn, okBtn;
 
     FrameLayout frameLayout;
-
+    FragmentActivity frag;
+    FloatingActionButton fbtn;
+    private static MainActivity instance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        instance = this;
         // This callback will only be called when MyFragment is at least Started.
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
@@ -60,32 +72,63 @@ public class MainActivity extends AppCompatActivity implements ModalFragment.Not
        //new StartGameDialogFragment().show(this.getSupportFragmentManager(), "GAME_DIALOG");
        // showNoticeDialog();
 
-        dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.dialog);
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.setCancelable(false);
+      //  dialog = new Dialog(MainActivity.this);
+      //  dialog.setContentView(R.layout.dialog);
+      //  dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+      //  dialog.setCancelable(false);
 
-        canceleBtn = dialog.findViewById(R.id.cancelButton);
-        okBtn = dialog.findViewById(R.id.okButton);
+      //  canceleBtn = dialog.findViewById(R.id.cancelButton);
+      //  okBtn = dialog.findViewById(R.id.okButton);
 
-        canceleBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+      //  canceleBtn.setOnClickListener(new View.OnClickListener() {
+      //      @Override
+      //      public void onClick(View v) {
+       //         dialog.dismiss();
+      //      }
+      //  });
 
-        okBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "yes", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-                finish();
-            }
-        });
+      //  okBtn.setOnClickListener(new View.OnClickListener() {
+       //     @Override
+        //    public void onClick(View v) {
+        //        Toast.makeText(MainActivity.this, "yes", Toast.LENGTH_SHORT).show();
+       //         dialog.dismiss();
+       //         finish();
+       //     }
+       // });
         frameLayout = findViewById(R.id.dialog_Frame);
 
+        fbtn = findViewById(R.id.floatingActionButton);
+        fbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SpinnerFragment modal = new SpinnerFragment(MainActivity.this);
+                CreateSpinner(modal);
+                fbtn.setVisibility(View.GONE);
+                //Toast.makeText(MainActivity.this, "Opening Spinner...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
+    }
+    public static MainActivity getInstance() {
+        return instance;
+    }
+    private  void CreateSpinner(SpinnerFragment newmodal)
+    {
+        //dialog.show();
+
+        frag = new FragmentActivity( getSupportFragmentManager().beginTransaction().replace(R.id.dialog_Frame, newmodal)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit());
+
+        frameLayout.setVisibility(View.VISIBLE);
+
+
+        //Button cb = frag.findViewById(R.id.cancelButton);
+       // cb.setOnClickListener(new View.OnClickListener() {
+         //   @Override
+         //   public void onClick(View v) {
+         //       Toast.makeText(MainActivity.this, "no", Toast.LENGTH_SHORT).show();
+         //   }
+        //});
     }
     private  void CreateDialog(ModalFragment newmodal)
     {
@@ -93,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements ModalFragment.Not
 
        FragmentActivity frag = new FragmentActivity( getSupportFragmentManager().beginTransaction().replace(R.id.dialog_Frame, newmodal)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit());
-        frameLayout.setVisibility(View.VISIBLE);
+
+       frameLayout.setVisibility(View.VISIBLE);
 
 
         Button cb = frag.findViewById(R.id.cancelButton);
@@ -129,19 +173,18 @@ public class MainActivity extends AppCompatActivity implements ModalFragment.Not
         super.onBackPressed();
     }
 
-    public void showNoticeDialog() {
-        // Create an instance of the dialog fragment and show it.
-        DialogFragment dialog = new NoticeDialogFragment();
-        dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
-    }
-    @Override
-    public void onDialogPositiveClick() {
-       // Toast.makeText(MainActivity.this, "yes", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
-    public void onDialogNegativeClick() {
-       // Toast.makeText(MainActivity.this, "no", Toast.LENGTH_SHORT).show();
+    public void onCloseSpinner() {
+        frag.finish();
+        frameLayout.setVisibility(View.GONE);
+        fbtn.setVisibility(View.VISIBLE);
+    }
+    public void close()
+    {
+        frag.finish();
+        frameLayout.setVisibility(View.GONE);
+        fbtn.setVisibility(View.VISIBLE);
     }
 }
 

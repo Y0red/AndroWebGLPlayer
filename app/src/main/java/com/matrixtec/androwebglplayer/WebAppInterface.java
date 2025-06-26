@@ -23,5 +23,13 @@ public class WebAppInterface {
     public  void closeWebApp() {
         Intent intent = new Intent(mContext, MainActivity.class);
         mContext.startActivity(intent);
+        //MainActivity.getInstance().onCloseSpinner();
+    }
+
+    @JavascriptInterface
+    public void tryAgain()
+    {
+        MainActivity.getInstance().close();
+       // ((MainActivity)mContext).close();
     }
 }

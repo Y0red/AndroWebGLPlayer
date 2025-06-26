@@ -44,7 +44,8 @@ public class GameDetailActivity extends AppCompatActivity {
 
 
         webSettings = gameWebView.getSettings();
-
+        gameWebView.clearCache(true);
+        gameWebView.clearHistory();
 
         gameWebView.setWebViewClient(new WebViewClient(){
             @Override
@@ -63,6 +64,13 @@ public class GameDetailActivity extends AppCompatActivity {
             }
         });
 
+        gameWebView.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl){
+                gameWebView.loadUrl("file:///android_asset/SpinnerNew/index.html");
+                Toast.makeText(GameDetailActivity.this, description, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         String gameLink = getIntent().getStringExtra("gameLink");
         String gameName = getIntent().getStringExtra("gameName");
@@ -123,7 +131,7 @@ public class GameDetailActivity extends AppCompatActivity {
     }
     public String EncodeHTML(@NonNull String html) { return Base64.encodeToString(html.getBytes(), Base64.NO_PADDING);}
     public String BaseHTML() {return "<html><body>'%23' is the percent code for ‘#‘ </body></html>";}
-    public  String Maccle(String url) {
+    public  String MaccleX(String url) {
         return  "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">"+
                 "  <head>\n" +
@@ -131,16 +139,15 @@ public class GameDetailActivity extends AppCompatActivity {
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n" +
                 "  </head>"+
                 "  <body>\n" +
-                "    <h1>Parent Window</h1>\n" +
-                "<input type=\"button\" value=\"Say hello\" onClick=\"closeGame()\" />"+
+
                 "    <!-- Embed the iframe that contains the h5game.html page -->\n" +
                 "    <iframe\n" +
                 "      id=\"game-iframe\"\n" +
                 "      src="+ url +
                 "      width=\"100%\"\n" +
-                "      height=\"90%\n"+
+                "      height=\"100%\"\n" +
                 "      frameborder=\"0\"\n" +
-                "allowFullScreen"+
+                "      allowFullScreen\"\n" +
                 "    ></iframe>\n" +
                 "\n" +
                 "    <script type=\"text/javascript\">\n" +
@@ -161,23 +168,58 @@ public class GameDetailActivity extends AppCompatActivity {
                 "</html>\n";
     }
 
-    public  String Mac() {
+    public String Maccle(String url)
+    {
         return "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "  <head>\n" +
-                "    <meta charset=\"UTF-8\" />\n" +
+                "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=2.0\" />\n" +
                 "    <title>Parent Window</title>\n" +
+                "    <style>\n" +
+                "        *{\n" +
+                "          padding: 0;\n" +
+                "          margin: 0;\n" +
+                "        }\n" +
+                "        html {\n" +
+                "          /* fix mobile viewport menu bar on iOS */\n" +
+                "          height: -webkit-fill-available;\n" +
+                "        }\n" +
+                "        body {\n" +
+                "          /* height: 100%;\n" +
+                "          fix mobile viewport menu bar on iOS */\n" +
+                "          height: -webkit-fill-available;\n" +
+                "          width: 100%;\n" +
+                "          text-align: center;\n" +
+                "          overflow: visible;\n" +
+                "          padding: 0;\n" +
+                "          margin: 0;\n" +
+                "          background : #000000;\n" +
+                "        }\n" +
+                "        #game-Iframe\n" +
+                "        {\n" +
+                "          width: 100%;\n" +
+                "          height: 100%;\n" +
+                "        }\n" +
+                "        #container\n" +
+                "        {\n" +
+                "          width: 100%;\n" +
+                "          height: 100%;\n" +
+                "        }\n" +
+                "    </style>\n" +
                 "  </head>\n" +
-                "  <body>\n" +
-                "    <h1>Parent Window</h1>\n" +
+                "  <body >\n" +
+                "    \n" +
+                "    <!--<h1>Parent Window</h1>-->\n" +
                 "    <!-- Embed the iframe that contains the h5game.html page -->\n" +
-                "    <iframe\n" +
-                "      id=\"gameIframe\"\n" +
-                "      src=\"https://games.fun.et/merge2048/index.html\"\n" +
-                "      width=\"100%\"\n" +
-                "      height=\"100%\"\n" +
-                "    ></iframe>\n" +
+                "    <div id = \"container\">\n" +
+                "        <iframe\n" +
+                "          id=\"game-Iframe\"\n" +
+                "          src="+ url +
+                "          frameborder = \"0\"\n" +
+                "          allowFullScreen\n" +
+                "      ></iframe>\n" +
+                "    </div>\n" +
                 "\n" +
                 "    <script type=\"text/javascript\">\n" +
                 "      // Handle payment response callback (already provided)\n" +
@@ -223,9 +265,19 @@ public class GameDetailActivity extends AppCompatActivity {
                 "          '{\"result\":\"PAYMENT_SUCCESS\",\"resultCode\":\"1\",\"transactionTime\":\"TEST_TIME\",\"amount\":300,\"prepayId\":\"prepayId\", \"data\": {\"message\": \"Payment successful\"}}'\n" +
                 "        );\n" +
                 "      });\n" +
+                "\n" +
+                "      const iframe = document.getElementById(\"game-Iframe\");\n" +
+                "      const container = document.getElementById('container');\n" +
+                "      \n" +
+                "      iframe.onload = function () {\n" +
+                "        console.log('done loding');\n" +
+                "      };\n" +
+                "\n" +
                 "    </script>\n" +
                 "    \n" +
                 "  </body>\n" +
                 "</html>\n";
     }
+
+
 }
